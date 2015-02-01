@@ -1,8 +1,8 @@
 package de.doofmars.whattsap.parser;
 
-import java.util.Date;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -12,7 +12,7 @@ public class WhatsappMessage {
 	
 	@Id
 	private String id;
-	private Date timestamp;
+	private DateTime timestamp;
 	private Type messageType;
 	private String sender;
 	private String message;
@@ -32,7 +32,7 @@ public class WhatsappMessage {
 	 * @param sender
 	 * @param message
 	 */
-	public WhatsappMessage(Date timestamp, String sender, String message) {
+	public WhatsappMessage(DateTime timestamp, String sender, String message) {
 		super();
 		this.timestamp = timestamp;
 		this.sender = sender;
@@ -46,7 +46,7 @@ public class WhatsappMessage {
 	 * @param timestamp
 	 * @param message
 	 */
-	public WhatsappMessage(Date timestamp, String message) {
+	public WhatsappMessage(DateTime timestamp, String message) {
 		super();
 		this.timestamp = timestamp;
 		this.sender = "SYSTEM";
@@ -58,11 +58,11 @@ public class WhatsappMessage {
 		this.message = new StringBuilder(message).append("\n").append(line).toString();
 	}
 
-	public Date getTimestamp() {
+	public DateTime getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(DateTime timestamp) {
 		this.timestamp = timestamp;
 	}
 
@@ -88,6 +88,11 @@ public class WhatsappMessage {
 
 	public void setMessageType(Type messageType) {
 		this.messageType = messageType;
+	}
+	
+	@Override
+	public String toString() {
+		return timestamp + " - " + sender + message ;
 	}
 
 	public enum Type {

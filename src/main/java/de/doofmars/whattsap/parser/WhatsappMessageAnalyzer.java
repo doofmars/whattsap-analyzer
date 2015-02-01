@@ -3,25 +3,44 @@ package de.doofmars.whattsap.parser;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.TreeMap;
+
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class WhatsappMessageAnalyzer {
 	private boolean hasMessages = false;
+	private Integer messagesAnalyzed = 0;
 	private Map<String, Integer> postsPerUser = new TreeMap<String, Integer>(); 
 	private Map<String, Integer> wordsPerUser = new TreeMap<String, Integer>(); 
 	private Map<String, Integer> wordCountTotal = new TreeMap<String, Integer>();
-	private Map<String, Integer> postsPerDayOfWeek = new TreeMap<String, Integer>();
+	private Map<String, Integer> postsPerDayOfWeek = new LinkedHashMap<String, Integer>();
 	private Map<String, Integer> postsDay = new TreeMap<String, Integer>();
 	private final Pattern pattern = Pattern.compile("[\"!#()*+-,./']");
-	private final static SimpleDateFormat dayOfWeek = new SimpleDateFormat("EEEE");
-	private final static SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd");
+	private final static DateTimeFormatter dayOfWeek = DateTimeFormat.forPattern("EEEE");
+	private final static DateTimeFormatter date = DateTimeFormat.forPattern("yyyy.MM.dd");
+
+	public WhatsappMessageAnalyzer() {
+		//Pre initialize postsDay
+		LocalDate now = new LocalDate();
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.MONDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.TUESDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.WEDNESDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.THURSDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.FRIDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.SATURDAY)), 0);
+		postsPerDayOfWeek.put(dayOfWeek.print(now.withDayOfWeek(DateTimeConstants.SUNDAY)), 0);
+	}
 	
 	public void analyze(WhatsappMessage message) {
+		messagesAnalyzed++;
 		hasMessages = true;
 		//count messages per user
 		if (postsPerUser.containsKey(message.getSender())) {
@@ -44,21 +63,16 @@ public class WhatsappMessageAnalyzer {
 				wordCountTotal.put(filterStrings(words[i]), 1);
 			}			
 		}
-		String key = dayOfWeek.format(message.getTimestamp());
-		if (postsPerDayOfWeek.containsKey(key)) {
-			postsPerDayOfWeek.put(key, postsPerDayOfWeek.get(key) + 1  );
-		} else {
-			postsPerDayOfWeek.put(key, words.length);
-		}
-		key = date.format(message.getTimestamp());
-		System.out.println(key);
-		System.out.println(message.getTimestamp());
+		//Posts per day of week
+		String key = dayOfWeek.print(message.getTimestamp());
+		postsPerDayOfWeek.put(key, postsPerDayOfWeek.get(key) + 1  );
+		//Posts per day
+		key = date.print(message.getTimestamp());
 		if (postsDay.containsKey(key)) {
 			postsDay.put(key, postsDay.get(key) + 1  );
 		} else {
-			postsDay.put(key, words.length);
+			postsDay.put(key, 1);
 		}
-		
 	}
 	
 	/**
@@ -70,6 +84,8 @@ public class WhatsappMessageAnalyzer {
 			writer = new PrintWriter("output.txt", "UTF-8");
 			Integer totalWords = 0;
 			
+			writer.println("---Whatsapp log Analyzer---");
+			writer.println("---------------------");
 			writer.println("---Posts per users---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : postsPerUser.entrySet()) {
@@ -83,8 +99,6 @@ public class WhatsappMessageAnalyzer {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
-			writer.write("TotalWords:" + totalWords + "\n");
-			writer.println("---------------------");
 			writer.println("---Avg. words per message per users---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : wordsPerUser.entrySet()) {
@@ -92,24 +106,32 @@ public class WhatsappMessageAnalyzer {
 				writer.format("%s \t %.3f%n", posts.getKey(), percentage);
 			}
 			writer.println("---------------------");
-			writer.println("---Post per Day of Week---");
+			writer.println("---Post per day of week---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : postsPerDayOfWeek.entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
-			writer.println("---Post per Day ---");
+			writer.println("---Post per day---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : postsDay.entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
-//			writer.println("---Words count---");
-//			writer.println("---------------------");
-//			for (Entry<String, Integer> posts : wordCountTotal.entrySet()) {
-//				writer.println(posts.getKey() + "\t" + posts.getValue());
-//			}
-//			writer.println("---------------------");
+			writer.println("---Words count---");
+			writer.println("---------------------");
+			for (Entry<String, Integer> posts : wordCountTotal.entrySet()) {
+				writer.println(posts.getKey() + "\t" + posts.getValue());
+			}
+			writer.println("---------------------");
+			writer.println("---Other statistics---");
+			writer.println("---------------------");
+			writer.println("Messages Total:\t" + messagesAnalyzed);
+			writer.write("Total Words:\t" + totalWords + "\n");
+			double percentage = (messagesAnalyzed / postsDay.size());
+			writer.format("Messages per Day: \t %.3f%n", percentage);
+			percentage = (totalWords / postsDay.size());
+			writer.format("Words per Day: \t %.3f%n", percentage);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} finally {
