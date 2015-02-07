@@ -3,6 +3,8 @@ package de.doofmars.whattsap.parser;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +25,7 @@ public class WhatsappMessageAnalyzer {
 	private Map<String, Integer> wordCountTotal = new TreeMap<String, Integer>();
 	private Map<String, Integer> postsPerDayOfWeek = new LinkedHashMap<String, Integer>();
 	private Map<String, Integer> postsDay = new TreeMap<String, Integer>();
+	private Map<String, TreeMap<String, Integer>> commonMessageTextPerUser = new HashMap<String, TreeMap<String, Integer>>();
 	private final Pattern pattern = Pattern.compile("[\"!#()*+-,./']");
 	private final static DateTimeFormatter dayOfWeek = DateTimeFormat.forPattern("EEEE");
 	private final static DateTimeFormatter date = DateTimeFormat.forPattern("yyyy.MM.dd");
@@ -73,6 +76,20 @@ public class WhatsappMessageAnalyzer {
 		} else {
 			postsDay.put(key, 1);
 		}
+		
+		if (commonMessageTextPerUser.containsKey(message.getSender())) {
+			TreeMap<String, Integer> innerSender = commonMessageTextPerUser.get(message.getSender());
+			if (innerSender.containsKey(message.getMessage())) {
+				innerSender.put(message.getMessage(), innerSender.get(message.getMessage()) + 1);
+			} else {
+				innerSender.put(message.getMessage(), 1);
+			}
+			commonMessageTextPerUser.put(message.getSender(), innerSender);			
+		} else {
+			TreeMap<String, Integer> innerSender = new TreeMap<String, Integer>();
+			innerSender.put(message.getMessage(), 1);
+			commonMessageTextPerUser.put(message.getSender(), innerSender);
+		}
 	}
 	
 	/**
@@ -88,20 +105,20 @@ public class WhatsappMessageAnalyzer {
 			writer.println("---------------------");
 			writer.println("---Posts per users---");
 			writer.println("---------------------");
-			for (Entry<String, Integer> posts : postsPerUser.entrySet()) {
+			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(postsPerUser).entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
 			writer.println("---Words per users---");
 			writer.println("---------------------");
-			for (Entry<String, Integer> posts : wordsPerUser.entrySet()) {
+			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(wordsPerUser).entrySet()) {
 				totalWords += posts.getValue();
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
 			writer.println("---Avg. words per message per users---");
 			writer.println("---------------------");
-			for (Entry<String, Integer> posts : wordsPerUser.entrySet()) {
+			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(wordsPerUser).entrySet()) {
 				double percentage = (posts.getValue().doubleValue() / postsPerUser.get(posts.getKey()).doubleValue());
 				writer.format("%s \t %.3f%n", posts.getKey(), percentage);
 			}
@@ -116,6 +133,27 @@ public class WhatsappMessageAnalyzer {
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : postsDay.entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
+			}
+			writer.println("---------------------");
+			writer.println("---Top 20 Message Text per User---");
+			writer.println("---------------------");
+			for (Entry<String, TreeMap<String, Integer>> posts : commonMessageTextPerUser.entrySet()) {
+				writer.println("********" + posts.getKey() + "********");
+				
+				Map<String, Integer> innerSender = MapUtil.sortByValueDsc(posts.getValue());
+				Iterator<Entry<String, Integer>> it = innerSender.entrySet().iterator();
+				int top20Break = 0;
+				while (it.hasNext()) {
+					Entry<String, Integer> pairs = it.next();
+					if (pairs.getKey() != " <Medien weggelassen>") {
+						writer.println(pairs.getKey() + "\t" + pairs.getValue());
+						it.remove(); // avoids a ConcurrentModificationException
+						top20Break++;						
+					}
+					if (top20Break > 20) {
+						break;
+					}
+				}
 			}
 			writer.println("---------------------");
 			writer.println("---Words count---");
