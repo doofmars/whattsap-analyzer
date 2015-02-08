@@ -181,6 +181,13 @@ public class WhatsappMessageAnalyzer {
 		return hasMessages;
 	}
 	
+	/**
+	 * Filter words beginning or ending with one of the following special characters
+	 * >>>>> \"!#()*+-,./' <<<<<
+	 * 
+	 * @param input the unfiltered string
+	 * @return the filtered string
+	 */
 	private String filterStrings(String input) {
 		if (input.length() > 2) {
 			String firstChar = input.substring(0, 1);
