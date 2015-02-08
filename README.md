@@ -1,4 +1,4 @@
-﻿Whatsapp Pharser
+﻿Whatsapp Analyzer
 =========================
 
 A small Java/Maven project with the purpose to take an exported chat log from Whatsapp and parse it for statistic information.
