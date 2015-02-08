@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -25,6 +26,7 @@ public class WhatsappMessageAnalyzer {
 	private Map<String, Integer> wordCountTotal = new TreeMap<String, Integer>();
 	private Map<String, Integer> postsPerDayOfWeek = new LinkedHashMap<String, Integer>();
 	private Map<String, Integer> postsDay = new TreeMap<String, Integer>();
+	private Map<Integer, Integer> postsHour = new TreeMap<Integer, Integer>();
 	private Map<String, TreeMap<String, Integer>> commonMessageTextPerUser = new HashMap<String, TreeMap<String, Integer>>();
 	private final Pattern pattern = Pattern.compile("[\"!#()*+-,./']");
 	private final static DateTimeFormatter dayOfWeek = DateTimeFormat.forPattern("EEEE");
@@ -77,6 +79,14 @@ public class WhatsappMessageAnalyzer {
 			postsDay.put(key, 1);
 		}
 		
+		if (postsHour.containsKey(message.getTimestamp().get(DateTimeFieldType.hourOfDay()))) {			
+			postsHour.put(message.getTimestamp().get(DateTimeFieldType.hourOfDay()), 
+					postsHour.get(message.getTimestamp().get(DateTimeFieldType.hourOfDay())) + 1);
+		} else {
+			postsHour.put(message.getTimestamp().get(DateTimeFieldType.hourOfDay()), 1);
+		}
+		
+		//Common Message Text per User
 		if (commonMessageTextPerUser.containsKey(message.getSender())) {
 			TreeMap<String, Integer> innerSender = commonMessageTextPerUser.get(message.getSender());
 			if (innerSender.containsKey(message.getMessage())) {
@@ -132,6 +142,12 @@ public class WhatsappMessageAnalyzer {
 			writer.println("---Post per day---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : postsDay.entrySet()) {
+				writer.println(posts.getKey() + "\t" + posts.getValue());
+			}
+			writer.println("---------------------");
+			writer.println("---Post per hour---");
+			writer.println("---------------------");
+			for (Entry<Integer, Integer> posts : postsHour.entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
