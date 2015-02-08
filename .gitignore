@@ -1,5 +1,5 @@
-input.txt
-output.txt
+input*
+output*
 
 target/
 pom.xml.tag
