@@ -113,20 +113,20 @@ public class WhatsappMessageAnalyzer {
 			
 			writer.println("---Whatsapp log Analyzer---");
 			writer.println("---------------------");
-			writer.println("---Posts per users---");
+			writer.println("---Posts per user---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(postsPerUser).entrySet()) {
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
-			writer.println("---Words per users---");
+			writer.println("---Words per user---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(wordsPerUser).entrySet()) {
 				totalWords += posts.getValue();
 				writer.println(posts.getKey() + "\t" + posts.getValue());
 			}
 			writer.println("---------------------");
-			writer.println("---Avg. words per message per users---");
+			writer.println("---Avg. words per message per user---");
 			writer.println("---------------------");
 			for (Entry<String, Integer> posts : MapUtil.sortByValueDsc(wordsPerUser).entrySet()) {
 				double percentage = (posts.getValue().doubleValue() / postsPerUser.get(posts.getKey()).doubleValue());

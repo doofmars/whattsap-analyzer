@@ -8,11 +8,12 @@ The script will generate the output inside of the **output.txt**
 
 Statistic information:
 
- + Posts per users
- + Words per users
- + Avg. words per message per users
+ + Posts per user
+ + Words per user
+ + Avg. words per message per user
  + Post per day of week
  + Post per day
+ + Post per hour
  + Top 20 Message Text per User
  + Words count
  + Other statistics
