@@ -16,10 +16,10 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class WhatsappMessageImporter {
 	private final static Logger logger = LogManager.getLogger(WhatsappMessageImporter.class);
-	private final static Pattern regex_lastyear = Pattern.compile("[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}, [0-9]{1,2}:[0-9]{2}");
-	private final static DateTimeFormatter dtf_lastyear = DateTimeFormat.forPattern("d.M.Y, H:m");
-	private final static Pattern regex_currentyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}, [0-9]{1,2}:[0-9]{2}");
-	private final static DateTimeFormatter dtf_currentyear = DateTimeFormat.forPattern("d. MMM, H:m").withDefaultYear(2015);
+	private final static Pattern regex_lastyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}\\. [0-9]{4} [0-9]{1,2}:[0-9]{2}");
+	private final static DateTimeFormatter dtf_lastyear = DateTimeFormat.forPattern("d. MMM. Y H:m");
+	private final static Pattern regex_currentyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}\\. [0-9]{1,2}:[0-9]{2}");
+	private final static DateTimeFormatter dtf_currentyear = DateTimeFormat.forPattern("d. MMM. H:m").withDefaultYear(2015);
 	
 	public void importFromTxt() {
 		String file = "input.txt";
