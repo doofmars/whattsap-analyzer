@@ -14,6 +14,12 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 
+/**
+ * Loads data from file and creates an adds the parsed message to the analyzer
+ * 
+ * @author Jan
+ *
+ */
 public class WhatsappMessageImporter {
 	private final static Logger logger = LogManager.getLogger(WhatsappMessageImporter.class);
 	private final static Pattern regex_lastyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}\\. [0-9]{4} [0-9]{1,2}:[0-9]{2}");
@@ -31,6 +37,7 @@ public class WhatsappMessageImporter {
 			BufferedReader br;
 			br = new BufferedReader(new FileReader(file));
 			String line;
+			//Loop thru the history file
 			while ((line = br.readLine()) != null) {
 				WhatsappMessage message = matchLine(line, regex_currentyear, dtf_currentyear);
 				if (message == null) {

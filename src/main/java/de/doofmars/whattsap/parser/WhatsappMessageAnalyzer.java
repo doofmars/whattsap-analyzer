@@ -180,12 +180,11 @@ public class WhatsappMessageAnalyzer {
 			writer.println("---------------------");
 			writer.println("---Other statistics---");
 			writer.println("---------------------");
-			writer.println("Messages Total:\t" + messagesAnalyzed);
-			writer.write("Total Words:\t" + totalWords + "\n");
-			double percentage = (messagesAnalyzed / postsDay.size());
-			writer.format("Messages per Day: \t %.3f%n", percentage);
-			percentage = (totalWords / postsDay.size());
-			writer.format("Words per Day: \t %.3f%n", percentage);
+			writer.format("Messages Total: \t %d%n", messagesAnalyzed);
+			writer.format("Total Words: \t %d%n", totalWords);
+			writer.format("Messages per Day: \t %.3f%n", ((double)messagesAnalyzed / (double)postsDay.size()));
+			writer.format("Words per Day: \t %.3f%n", ((double)totalWords / (double)postsDay.size()));
+			writer.format("Words per Post: \t %.3f%n", ((double)totalWords / (double)messagesAnalyzed));
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} finally {
