@@ -110,13 +110,13 @@ public class WhatsappMessageImporter {
 				}				
 			}
 			if (this.plattform == "ios") {
-				truncatet = truncatet.substring(1);
+				truncatet = truncatet.substring(2);
 				if (truncatet.contains(": ")) {
 					String user = truncatet.substring(0, truncatet.indexOf(':'));
-					String message = truncatet.replace(user, "").substring(4);			
+					String message = truncatet.replace(user, "").substring(2);			
 					return new WhatsappMessage(dateTime, user, message);
 				} else {
-					String message = truncatet.substring(3);
+					String message = truncatet;
 					return new WhatsappMessage(dateTime, message);
 				}				
 			}
