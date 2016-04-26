@@ -22,10 +22,11 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class WhatsappMessageImporter {
 	private final static Logger logger = LogManager.getLogger(WhatsappMessageImporter.class);
-	private final static Pattern regex_lastyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}\\. [0-9]{4} [0-9]{1,2}:[0-9]{2}");
-	private final static DateTimeFormatter dtf_lastyear = DateTimeFormat.forPattern("d. MMM. Y H:m");
-	private final static Pattern regex_currentyear = Pattern.compile("[\\d]{1,2}\\. [a-zA-Z]{3}\\. [0-9]{1,2}:[0-9]{2}");
-	private final static DateTimeFormatter dtf_currentyear = DateTimeFormat.forPattern("d. MMM. H:m").withDefaultYear(2015);
+	private final static Pattern regex_android = Pattern.compile("[\\d]{2}\\.[\\d]{2}\\.[\\d]{2}, [0-9]{2}:[0-9]{2}");
+	private final static DateTimeFormatter dtf_android = DateTimeFormat.forPattern("dd.MM.yy, HH:mm");
+	
+	private final static Pattern regex_ios = Pattern.compile("[\\d]{2}\\.[\\d]{2}\\.[\\d]{2}, [0-9]{1,2}:[0-9]{2}:[0-9]{2}");
+	private final static DateTimeFormatter dtf_ios = DateTimeFormat.forPattern("dd.MM.yy, HH:mm:ss").withDefaultYear(2015);
 	
 	public void importFromTxt() {
 		String file = "input.txt";
@@ -39,9 +40,9 @@ public class WhatsappMessageImporter {
 			String line;
 			//Loop thru the history file
 			while ((line = br.readLine()) != null) {
-				WhatsappMessage message = matchLine(line, regex_currentyear, dtf_currentyear);
+				WhatsappMessage message = matchLine(line, regex_ios, dtf_ios);
 				if (message == null) {
-					message = matchLine(line, regex_lastyear, dtf_lastyear);
+					message = matchLine(line, regex_android, dtf_android);
 					if (message == null) {
 						lastMessage.appendLine(line);
 					} else {
